@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import psycopg2
 import boto3
 import os
@@ -17,7 +17,7 @@ def reachability_db():
     port = os.environ.get('DB_PORT', '5432')
     user = os.environ.get('DB_USER')
     region = os.environ.get('AWS_REGION', 'us-east-1')
-    dbname = os.environ.get('DB_NAME')
+    dbname = request.args.get('connect_to', os.environ.get('DB_NAME', 'mydb'))
     aws_profile = os.environ.get('AWS_PROFILE', 'default')
     ssl_cert = os.environ.get('SSL_CERTIFICATE', 'SSLCERTIFICATE')
 
