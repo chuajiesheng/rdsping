@@ -1,10 +1,72 @@
-from flask import Flask
+from flask import Flask, jsonify
+import psycopg2
+import boto3
+import os
 
 app = Flask(__name__)
 
-@app.route('/health')
-def health():
+@app.route('/reachability/app')
+def reachability_app():
     return 'ok'
+
+@app.route('/reachability/db')
+def reachability_db():
+    # Get configuration from environment variables
+    endpoint = os.environ.get('DB_ENDPOINT')
+    port = os.environ.get('DB_PORT', '5432')
+    user = os.environ.get('DB_USER')
+    region = os.environ.get('AWS_REGION', 'us-east-1')
+    dbname = os.environ.get('DB_NAME')
+    aws_profile = os.environ.get('AWS_PROFILE', 'default')
+    ssl_cert = os.environ.get('SSL_CERTIFICATE', 'SSLCERTIFICATE')
+
+    # Validate required environment variables
+    if not all([endpoint, user, dbname]):
+        return jsonify({
+            'status': 'error',
+            'message': 'Error 1'
+        }), 500
+
+    try:
+        # Create boto3 session and RDS client
+        session = boto3.Session(profile_name=aws_profile)
+        client = session.client('rds')
+
+        # Generate IAM authentication token
+        token = client.generate_db_auth_token(
+            DBHostname=endpoint,
+            Port=port,
+            DBUsername=user,
+            Region=region
+        )
+
+        # Attempt database connection
+        conn = psycopg2.connect(
+            host=endpoint,
+            port=port,
+            database=dbname,
+            user=user,
+            password=token,
+            sslrootcert=ssl_cert
+        )
+        cur = conn.cursor()
+        cur.execute("""SELECT now()""")
+        query_results = cur.fetchall()
+
+        # Close connections
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            'status': 'success',
+            'timestamp': str(query_results[0][0]) if query_results else None
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Database connection failed: {str(e)}'
+        }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
