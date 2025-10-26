@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 import psycopg2
 import boto3
 import os
+import logging
 
 app = Flask(__name__)
 
@@ -22,6 +23,7 @@ def reachability_db():
 
     # Validate required environment variables
     if not all([endpoint, user, dbname]):
+        logging.error('Missing required environment variables: DB_ENDPOINT, DB_USER, DB_NAME')
         return jsonify({
             'status': 'error',
             'message': 'Error 1'
@@ -63,9 +65,10 @@ def reachability_db():
         }), 200
 
     except Exception as e:
+        logging.error(f'Database connection failed: {str(e)}')
         return jsonify({
             'status': 'error',
-            'message': f'Database connection failed: {str(e)}'
+            'message': 'Error 2'
         }), 500
 
 if __name__ == '__main__':
