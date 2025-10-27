@@ -16,6 +16,7 @@ def test():
     endpoint = os.environ.get('DB_ENDPOINT')
     port = os.environ.get('DB_PORT', '5432')
     user = os.environ.get('DB_USER')
+    password = os.environ.get('DB_PASSWORD')
     region = os.environ.get('AWS_REGION', 'us-east-1')
     dbname = request.args.get('connect_to', os.environ.get('DB_NAME', 'mydb'))
     aws_profile = os.environ.get('AWS_PROFILE', 'default')
@@ -35,7 +36,7 @@ def test():
         client = session.client('rds')
 
         # Generate IAM authentication token
-        token = client.generate_db_auth_token(
+        token = password or client.generate_db_auth_token(
             DBHostname=endpoint,
             Port=port,
             DBUsername=user,

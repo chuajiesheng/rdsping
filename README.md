@@ -1,21 +1,25 @@
 # RDS Ping
 
-A simple Flask application to test RDS connectivity using IAM authentication.
+A simple Flask application to test RDS connectivity using password or IAM authentication.
 
 ## Endpoints
 
 ### `GET /hello`
+
 Health check endpoint for the application.
 
 **Response:** `ok`
 
 ### `GET /test`
+
 Tests RDS database connectivity using IAM authentication.
 
 **Query Parameters:**
+
 - `connect_to` (optional) - Override the database name to connect to
 
 **Response:**
+
 ```json
 {
   "status": "success",
@@ -24,6 +28,7 @@ Tests RDS database connectivity using IAM authentication.
 ```
 
 **Error Response:**
+
 ```json
 {
   "status": "error",
@@ -33,15 +38,16 @@ Tests RDS database connectivity using IAM authentication.
 
 ## Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DB_ENDPOINT` | Yes | - | RDS endpoint URL |
-| `DB_USER` | Yes | - | Database username |
-| `DB_NAME` | No | `mydb` | Default database name |
-| `DB_PORT` | No | `5432` | Database port |
-| `AWS_REGION` | No | `us-east-1` | AWS region |
-| `AWS_PROFILE` | No | `default` | AWS credentials profile |
-| `SSL_CERTIFICATE` | No | `SSLCERTIFICATE` | Path to SSL certificate |
+| Variable          | Required | Default          | Description             |
+|-------------------|----------|------------------|-------------------------|
+| `DB_ENDPOINT`     | Yes      | -                | RDS endpoint URL        |
+| `DB_USER`         | Yes      | -                | Database username       |
+| `DB_PASSWORD`     | No       | -                | Database password       |
+| `DB_NAME`         | No       | `mydb`           | Default database name   |
+| `DB_PORT`         | No       | `5432`           | Database port           |
+| `AWS_REGION`      | No       | `us-east-1`      | AWS region              |
+| `AWS_PROFILE`     | No       | `default`        | AWS credentials profile |
+| `SSL_CERTIFICATE` | No       | `SSLCERTIFICATE` | Path to SSL certificate |
 
 ## Installation
 
