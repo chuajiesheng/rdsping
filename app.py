@@ -1,14 +1,16 @@
-from flask import Flask, jsonify, request
-import psycopg2
 import boto3
-import os
 import logging
+import os
+import psycopg2
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
 
 @app.route('/hello')
 def hello():
     return 'ok'
+
 
 @app.route('/test')
 def test():
@@ -31,17 +33,19 @@ def test():
         }), 500
 
     try:
-        # Create boto3 session and RDS client
-        session = boto3.Session(profile_name=aws_profile)
-        client = session.client('rds')
+        if not password:
+            logging.info('Attempting IAM authentication')
 
-        # Generate IAM authentication token
-        token = password or client.generate_db_auth_token(
-            DBHostname=endpoint,
-            Port=port,
-            DBUsername=user,
-            Region=region
-        )
+            session = boto3.Session(profile_name=aws_profile)
+            client = session.client('rds')
+            token = client.generate_db_auth_token(
+                DBHostname=endpoint,
+                Port=port,
+                DBUsername=user,
+                Region=region
+            )
+        else:
+            logging.info('Using password authentication')
 
         # Attempt database connection
         conn = psycopg2.connect(
@@ -49,7 +53,7 @@ def test():
             port=port,
             database=dbname,
             user=user,
-            password=token,
+            password=password or token,
             sslrootcert=ssl_cert
         )
         cur = conn.cursor()
@@ -71,6 +75,7 @@ def test():
             'status': 'error',
             'message': 'Error 2'
         }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
