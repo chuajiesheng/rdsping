@@ -6,12 +6,12 @@ import logging
 
 app = Flask(__name__)
 
-@app.route('/reachability/app')
-def reachability_app():
+@app.route('/hello')
+def hello():
     return 'ok'
 
-@app.route('/reachability/db')
-def reachability_db():
+@app.route('/test')
+def test():
     # Get configuration from environment variables
     endpoint = os.environ.get('DB_ENDPOINT')
     port = os.environ.get('DB_PORT', '5432')

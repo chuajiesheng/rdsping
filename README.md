@@ -4,12 +4,12 @@ A simple Flask application to test RDS connectivity using IAM authentication.
 
 ## Endpoints
 
-### `GET /reachability/app`
+### `GET /hello`
 Health check endpoint for the application.
 
 **Response:** `ok`
 
-### `GET /reachability/db`
+### `GET /test`
 Tests RDS database connectivity using IAM authentication.
 
 **Query Parameters:**
